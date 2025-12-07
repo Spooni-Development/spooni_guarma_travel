@@ -5,8 +5,8 @@ Config.Locale = 'en'
 Config.Key = 0x760A9C6F
 
 Config.Transitions = {
-    enabled = true,
-    duration = {
+    enabled = true, -- true or false
+    duration = { -- in milliseconds
         normal = 10000,
         fadeIn = 2000,
         fadeOut=  2500,
@@ -20,24 +20,27 @@ Config.Water = {
     waves = { height = 4.0, direction = 0, amount = 1.25, speed = 1.5, strength = 8.0 },
 }
 
-Config.Main = {
-    name = 'Travel to Guarma',
-    id = 'mainland',
-    price = 0,
-    coords = vector3(2671.13, -1552.96, 46.47),
-    radius = 2.0,
-    blip = true,
-    sprite = -1018164873,
-    scale = 0.7,
-}
-
-Config.Guarma = {
-    name = 'Travel to Mainland',
-    id = 'guarma',
-    price = 0,
-    coords = vector3(1265.8421, -6852.1635, 43.4185),
-    radius = 2.0,
-    blip = true,
-    sprite = -1018164873,
-    scale = 0.7,
+Config.Teleports = {
+    [1] = { -- St. Denis Harbor
+        name = 'Travel to Guarma',
+        id = 'mainland', -- guarma or mainland
+        price = 5,
+        coords = vector3(2671.13, -1552.96, 46.47),
+        destination = vector3(1265.8421, -6852.1635, 43.4185), -- where the player spawns after teleport
+        radius = 2.0,
+        blip = true, -- true or false
+        sprite = -1018164873,
+        scale = 0.7,
+    },
+    [2] = {
+        name = 'Travel to St. Denis Harbor',
+        id = 'guarma', -- guarma or mainland
+        price = 2.5,
+        coords = vector3(1265.8421, -6852.1635, 43.4185),
+        destination = vector3(2671.13, -1552.96, 46.47), -- where the player spawns after teleport
+        radius = 2.0,
+        blip = true, -- true or false
+        sprite = -1018164873,
+        scale = 0.7,
+    },
 }

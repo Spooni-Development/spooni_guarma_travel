@@ -27,10 +27,10 @@ end
 -- Events
 
 RegisterServerEvent('spooni_guarma_travel:server:buyTicket')
-AddEventHandler('spooni_guarma_travel:server:buyTicket', function(destination)
+AddEventHandler('spooni_guarma_travel:server:buyTicket', function(teleporter)
     local src = source
     
-    if not isValid(src) or type(destination) ~= 'string' then
+    if not isValid(src) or type(teleporter) ~= 'table' then
         Debug('Invalid parameters from source ' .. tostring(src))
         return
     end
@@ -41,19 +41,21 @@ AddEventHandler('spooni_guarma_travel:server:buyTicket', function(destination)
         return
     end
     
-    local isMainland = destination == 'mainland'
-    local isGuarma = destination == 'guarma'
-    
-    if not isMainland and not isGuarma then
-        Debug('Invalid destination: ' .. destination .. ' from source ' .. src)
+    if not isValid(teleporter.price) or not isValid(teleporter.name) or not isValid(teleporter.id) then
+        Debug('Invalid teleporter data from source ' .. src)
         return
     end
     
-    local price = isMainland and Config.Main.price or Config.Guarma.price
-    local notificationKey = isMainland and 'notify_ticket_mainland' or 'notify_ticket_guarma'
+    character.removeCurrency(0, teleporter.price)
     
-    character.removeCurrency(0, price)
-    Core.NotifyAvanced(src, Translation[Config.Locale][notificationKey], 'inventory_items', 'money_moneystack', 'COLOR_PURE_WHITE', 5000)
-    -- jo.notif.right(src, Translation[Config.Locale][notificationKey], 'inventory_items', 'money_moneystack', 'COLOR_PURE_WHITE', 5000)
-    Debug(destination .. ' ticket purchased by source ' .. src .. ' (Price: $' .. price)
+    if teleporter.id == 'guarma' then
+        Core.NotifyAvanced(src, Translation[Config.Locale]['notify_ticket_guarma'], 'inventory_items', 'money_moneystack', 'COLOR_PURE_WHITE', 5000)
+    elseif teleporter.id == 'mainland' then
+        Core.NotifyAvanced(src, Translation[Config.Locale]['notify_ticket_mainland'], 'inventory_items', 'money_moneystack', 'COLOR_PURE_WHITE', 5000)
+    else
+        Debug('No valid id found! Check your config.lua')
+        return
+    end
+    
+    Debug(teleporter.name .. ' ticket purchased by source ' .. src .. ' (Price: $' .. teleporter.price .. ')')
 end)

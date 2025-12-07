@@ -3,8 +3,8 @@ Translation = {}
 Translation = {
     ['en'] = {
         -- Prompts
-        ['prompt_mainland'] = 'Go Home',
-        ['prompt_guarma'] = 'Lets go',
+        ['prompt_mainland'] = 'Lets go',
+        ['prompt_guarma'] = 'Go Home',
         ['prompt_group_guarma'] = 'Travel to Guarma for ~t6~',
         ['prompt_group_mainland'] = 'Travel to Mainland for ~t6~',
         ['prompt_group_free_ride'] = 'free~q~',
@@ -24,8 +24,8 @@ Translation = {
     },
     ['de'] = {
         -- Prompts
-        ['prompt_mainland'] = 'Aufs Festland',
-        ['prompt_guarma'] = 'Auf gehts',
+        ['prompt_mainland'] = 'Auf gehts',
+        ['prompt_guarma'] = 'Aufs Festland',
         ['prompt_group_guarma'] = 'Reise nach Guarma für ~t6~',
         ['prompt_group_mainland'] = 'Reise zum Festland für ~t6~',
         ['prompt_group_free_ride'] = 'umsonst~q~',

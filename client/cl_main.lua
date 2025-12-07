@@ -110,7 +110,7 @@ local function executeTeleportation(destination, isGuarmaDest)
         Wait(Config.Transitions.duration.fadeOut)
     end
     
-    SetEntityCoords(getPlayerPed(), destination.coords.x, destination.coords.y, destination.coords.z, false, false, false, false)
+    SetEntityCoords(getPlayerPed(), destination.destination.x, destination.destination.y, destination.destination.z, false, false, false, false)
     
     if Config.Transitions.enabled then
         DoScreenFadeIn(Config.Transitions.duration.fadeIn)
@@ -168,30 +168,24 @@ local function initializeMainlandPrompt()
     Debug('Mainland prompt initialized')
 end
 
-local function showGuarmaPrompt()
-    local priceDisplay = formatPrice(Config.Guarma.price)
-    local label = CreateVarString(10, 'LITERAL_STRING', Translation[Config.Locale]['prompt_group_guarma'] .. priceDisplay)
-    UiPromptSetActiveGroupThisFrame(state.promptGroupGuarma, label)
-end
-
-local function showMainlandPrompt()
-    local priceDisplay = formatPrice(Config.Main.price)
-    local label = CreateVarString(10, 'LITERAL_STRING', Translation[Config.Locale]['prompt_group_mainland'] .. priceDisplay)
-    UiPromptSetActiveGroupThisFrame(state.promptGroupMainland, label)
+local function showTeleportPrompt(teleporter, destinationId)
+    local priceDisplay = formatPrice(teleporter.price)
+    local label = CreateVarString(10, 'LITERAL_STRING', teleporter.name .. ' - ' .. priceDisplay)
+    UiPromptSetActiveGroupThisFrame(destinationId == 'guarma' and state.promptGroupGuarma or state.promptGroupMainland, label)
 end
 
 -- Blips
 
 local function createBlips()
-    for location, config in pairs({Main = Config.Main, Guarma = Config.Guarma}) do
-        if config.blip then
-            local blip = BlipAddForCoords(1664425300, config.coords.x, config.coords.y, config.coords.z)
-            SetBlipSprite(blip, config.sprite, true)
-            SetBlipScale(blip, config.scale)
-            SetBlipName(blip, config.name)
+    for i, teleporter in ipairs(Config.Teleports) do
+        if teleporter.blip then
+            local blip = BlipAddForCoords(1664425300, teleporter.coords.x, teleporter.coords.y, teleporter.coords.z)
+            SetBlipSprite(blip, teleporter.sprite, true)
+            SetBlipScale(blip, teleporter.scale)
+            SetBlipName(blip, teleporter.name)
             
-            state.blips[location] = blip
-            Debug('Blip created for ' .. location)
+            state.blips[i] = blip
+            Debug('Blip created for: ' .. teleporter.name)
         end
     end
 end
@@ -230,47 +224,30 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
+    Debug('Teleport threads started')
     initializeGuarmaPrompt()
-    Debug('Guarma teleport thread started')
-    
-    while true do
-        Wait(0)
-        
-        local playerCoords = getPlayerCoords()
-        local distanceToGuarma = getDistance(playerCoords, Config.Guarma.coords)
-        
-        if distanceToGuarma <= Config.Guarma.radius then
-            showMainlandPrompt()
-            
-            if UiPromptHasStandardModeCompleted(state.mainlandPrompt) then
-                TriggerServerEvent('spooni_guarma_travel:server:buyTicket', 'mainland')
-                executeTeleportation(Config.Main, false)
-            end
-        else
-            Wait(Config.Transitions.duration.screenWait)
-        end
-    end
-end)
-
-Citizen.CreateThread(function()
     initializeMainlandPrompt()
-    Debug('Mainland teleport thread started')
     
     while true do
         Wait(0)
         
         local playerCoords = getPlayerCoords()
-        local distanceToMainland = getDistance(playerCoords, Config.Main.coords)
         
-        if distanceToMainland <= Config.Main.radius then
-            showGuarmaPrompt()
+        for i, teleporter in ipairs(Config.Teleports) do
+            local distance = getDistance(playerCoords, teleporter.coords)
             
-            if UiPromptHasStandardModeCompleted(state.guarmaPrompt) then
-                TriggerServerEvent('spooni_guarma_travel:server:buyTicket', 'guarma')
-                executeTeleportation(Config.Guarma, true)
+            if distance <= teleporter.radius then
+                local destinationId = teleporter.id
+                local isGuarmaDest = destinationId == 'guarma'
+                
+                showTeleportPrompt(teleporter, destinationId)
+                
+                local promptToCheck = isGuarmaDest and state.guarmaPrompt or state.mainlandPrompt
+                if UiPromptHasStandardModeCompleted(promptToCheck) then
+                    TriggerServerEvent('spooni_guarma_travel:server:buyTicket', teleporter)
+                    executeTeleportation(teleporter, isGuarmaDest)
+                end
             end
-        else
-            Wait(Config.Transitions.duration.screenWait)
         end
     end
 end)
