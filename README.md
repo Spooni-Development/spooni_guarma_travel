@@ -75,4 +75,3 @@ Big thanks go to [NeoGaming22](https://github.com/NeoGaming22) the creator of th
 
 Click here for the [original script](https://github.com/NeoGaming22/wcrp_guarma)
 Click here for the [edit script](https://github.com/Hailey-Ross/hails_guarma)
-```
